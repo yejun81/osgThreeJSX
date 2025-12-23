@@ -1,0 +1,78 @@
+#ifndef OSGTHREEJSX_SHADER_LIB
+#define OSGTHREEJSX_SHADER_LIB 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+namespace osgThreeJSX
+{
+
+	class OSGTHREEJSX_EXPORT ShaderChunk
+	{
+	public:
+		//
+		static const std::string& get(const std::string& key);
+		//
+		static void registe(const std::string& key, const std::string& shader);
+	protected:
+		typedef std::map<std::string, std::string> ShaderChunkMap;
+		static ShaderChunkMap _map;
+	};
+
+	class OSGTHREEJSX_EXPORT ShaderChunkRegisterProxy
+	{
+	public:
+		ShaderChunkRegisterProxy(const char* key, const char* shader)
+		{
+			ShaderChunk::registe(key, shader);
+		}
+	};
+
+#define REGISTER_SHADERCHUNK(key, shader) \
+    static ShaderChunkRegisterProxy g_shaderchunk_proxy_##key(#key, shader);
+
+	class OSGTHREEJSX_EXPORT ShaderObject : public osg::Referenced
+	{
+	public:
+		virtual ~ShaderObject() {}
+	public:
+		std::string vertex;
+		std::string fragment;
+		//UniformList uniforms;
+	};
+
+	class OSGTHREEJSX_EXPORT ShaderLib
+	{
+	public:
+
+		static ShaderLib& instance()
+		{
+			static ShaderLib instance;
+			return instance;
+		}
+		//
+		void registe(const char* shaderId, const std::string& vertex, const std::string& fragment);
+	public:
+		//
+		ShaderObject* getShaderObject(const std::string& shaderId);
+	public:
+		typedef std::map<std::string, ShaderObject> ShaderObjectMap;
+	protected:
+		ShaderObjectMap _map;
+	};
+
+	class OSGTHREEJSX_EXPORT ShaderLibRegisterProxy
+	{
+	public:
+		ShaderLibRegisterProxy(const char* shaderId, const std::string& vertex, const std::string& fragment)
+		{
+			ShaderLib::instance().registe(shaderId, vertex, fragment);
+		}
+	};
+
+#define REGISTER_SHADERLIB(shaderId, vertex, fragment) \
+    static ShaderLibRegisterProxy g_shaderlib_proxy_##shaderId(#shaderId, vertex, fragment);
+}
+#endif

@@ -1,0 +1,311 @@
+
+#ifndef OSGTHREEJSX_MATERIAL
+#define OSGTHREEJSX_MATERIAL 1
+#include <osg/Texture>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/BlendEquation>
+#include <osg/BlendFunc>
+#include <osgUtil/CullVisitor>
+#include <unordered_map>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Programs>
+
+namespace osgThreeJSX
+{
+
+	enum MaterialSideType
+	{
+		MaterialSideType_FrontSide = 0,
+		MaterialSideType_BackSide = 1,
+		MaterialSideType_DoubleSide = 2,
+	};
+
+	enum MaterialType
+	{
+		MaterialType_Invalid = 0,
+		MaterialType_Basic = 1,
+		MaterialType_Standard = 2,
+		MaterialType_Physical = 3,
+	};
+
+	struct MaterialTexture
+	{
+		MaterialTexture() {}
+		MaterialTexture(const std::string& name, const osg::ref_ptr<osg::Texture>& texture) : _name(name), _texture(texture) {}
+		std::string _name;
+		osg::ref_ptr<osg::Texture> _texture;
+	};
+
+	struct MaterailVertexAttrib
+	{
+		MaterailVertexAttrib() {}
+		MaterailVertexAttrib(const std::string& name, unsigned int index) : _name(name), _index(index) {}
+		std::string _name;
+		unsigned int _index;
+	};
+
+	typedef std::vector<MaterialTexture> MaterialTextureList;
+
+	typedef std::vector<MaterailVertexAttrib> MaterialVertexAttribList;
+
+	typedef std::vector< osg::ref_ptr<osg::Uniform> > MaterialUniformList;	
+
+	class Program;
+	class ProgramParameters;
+	class Material;
+	class Light;
+
+	class OSGTHREEJSX_EXPORT Material : public osg::Object
+	{
+	public:
+		//
+		Material();
+		//
+		Material(const Material& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~Material();
+		//
+		META_Object(osg, Material);
+	public:
+		//
+		virtual MaterialType getType() { return MaterialType_Invalid; }
+		//
+		virtual const char* getShaderId() { return ""; }
+		//
+		virtual void update(osg::Camera* camera, osgUtil::CullVisitor* cv, osg::Node* node);
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void onBeforeCompile(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters) {}
+		//
+		void dirty() { _curVersion++; }
+		//
+		unsigned int getCurVersion() { return _curVersion; }
+		//
+		void setCurVersion(unsigned int curVersion) { _curVersion = curVersion; }
+		//
+		unsigned int getPreVersion() { return _preVersion; }
+		//
+		void setPreVersion(unsigned int preVersion) { _preVersion = preVersion; }
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setVertexAttribList(const MaterialVertexAttribList& list) { _vertexAttribList = list; }
+		//
+		void addVertexAttrib(const MaterailVertexAttrib& vertexAttrib) { _vertexAttribList.push_back(vertexAttrib); }
+	public:
+		//
+		void setStartTextureUnit(int unit) { _startTextureUnit = unit; }
+	protected:
+		int _startTextureUnit;
+	public:
+		//
+		template<typename ValueType>
+		void setUniform(const std::string& name, ValueType value)
+		{
+			getOrCreateUniform(_uniforms, name, value);
+			dirty();
+		}
+		//
+		void setUniform(osg::Uniform* uniform)
+		{
+			getOrCreateUniform(_uniforms, uniform);
+			dirty();
+		}
+		//
+		void removeUniform(const std::string& name);
+
+		const MaterialUniformList& getUniformList() { return _uniforms; }
+	protected:
+		MaterialUniformList _uniforms;
+	public:
+		//
+		void setTexture(const std::string& name, osg::ref_ptr<osg::Texture>& texture);
+		//
+		void removeTexture(const std::string& name);
+	protected:
+		MaterialTextureList _textures;
+	public:
+		//
+		const std::string& getVertexShader() { return _vertexShader; }
+		//
+		void setVertexShader(const std::string& shaderText) { _vertexShader = shaderText; }
+		//
+		const std::string& getFragmentShader() { return _fragmentShader; }
+		//
+		void setFragmentsShader(const std::string& shaderText) { _fragmentShader = shaderText; }
+		//
+		virtual bool generateProgram() { return true; }
+		//
+		virtual bool isRaw() { return false; }
+	protected:
+		std::string _vertexShader;
+		std::string _fragmentShader;
+	public:
+		//
+		const DefineMap& getDefines() { return _defines; }
+		//
+		void addDefine(const std::string& key, const std::string& value) { _defines[key] = value; }
+		//
+		void removeDefine(const std::string& key) { _defines.erase(key); }
+		//
+		bool getDefine(const std::string& key, std::string& value);
+	public:
+		//
+		template<typename ValueType>
+		void getOrCreateUniform(MaterialUniformList& uniforms, const std::string& name, ValueType value)
+		{
+			osg::Uniform* uniform = new osg::Uniform(name.c_str(), value);
+			getOrCreateUniform(uniforms, uniform);
+		}
+		//
+		void getOrCreateUniform(MaterialUniformList& uniforms, osg::Uniform* uniform)
+		{
+			for (MaterialUniformList::iterator iter = uniforms.begin(); iter != uniforms.end(); iter++)
+			{
+				if ((*iter)->getName() == uniform->getName())
+				{
+					*iter = uniform;
+					return;
+				}
+			}
+
+			uniforms.push_back(uniform);
+		}
+	protected:
+		osg::ref_ptr<Program> _program;
+		DefineMap _defines;
+		MaterialVertexAttribList _vertexAttribList;
+	public:
+		osg::StateSet* getStateset() { return _stateset.get(); }
+	protected:
+		osg::ref_ptr<osg::StateSet> _stateset;
+	protected:
+		unsigned int _preVersion;
+		unsigned int _curVersion;
+	public:
+		//
+		osg::ref_ptr<Material> getOrCreateDepthMaterial(Light* light);
+		//
+		bool getVertexTangents() const { return _vertexTangents; }
+		//
+		void setVertexTangents(bool val) { _vertexTangents = val; }
+		//
+		bool getVertexColors() const { return _vertexColors; }
+		//
+		void setVertexColors(bool val) { _vertexColors = val; }
+		//
+		bool getFlatShading() const { return _flatShading; }
+		//
+		void setFlatShading(bool val) { _flatShading = val; }
+		//
+		osgThreeJSX::MaterialSideType getSide() const { return _side; }
+		//
+		void setSide(osgThreeJSX::MaterialSideType val) { _side = val; }
+		//
+		bool getDithering() const { return _dithering; }
+		//
+		void setDithering(bool val) { _dithering = val; }
+		//
+		bool getPremultipliedAlpha() const { return _premultipliedAlpha; }
+		//
+		void setPremultipliedAlpha(bool val) { _premultipliedAlpha = val; }
+		//
+		bool getFog() const { return _fog; }
+		//
+		void setFog(bool val) { _fog = val; }
+		//
+		float getAlphaTest() const { return _alphaTest; }
+		//
+		void setAlphaTest(float val) { _alphaTest = val; }
+		//
+		bool getInstancing() const { return _instancing; }
+		//
+		void setInstancing(bool val) { _instancing = val; }
+		//
+		bool getTransparent() const { return _transparent; }
+		//
+		void setTransparent(bool val) { _transparent = val; }
+		//
+		void setBlendFuncMode(osg::BlendFunc::BlendFuncMode src, osg::BlendFunc::BlendFuncMode dst,
+			osg::BlendFunc::BlendFuncMode srcAlpha, osg::BlendFunc::BlendFuncMode dstAlpha)
+		{
+			_blendSrc = src;
+			_blendDst = dst;
+			_blendSrcAlpha = srcAlpha;
+			_blendDstAlpha = dstAlpha;
+		}
+		//
+		void getBlendFuncMode(osg::BlendFunc::BlendFuncMode& src, osg::BlendFunc::BlendFuncMode& dst,
+			osg::BlendFunc::BlendFuncMode& srcAlpha, osg::BlendFunc::BlendFuncMode& dstAlpha)
+		{
+			src = _blendSrc;
+			dst = _blendDst;
+			srcAlpha = _blendSrcAlpha;
+			dstAlpha = _blendDstAlpha;
+		}
+		//
+		void setBlendEquation(osg::BlendEquation::Equation color, osg::BlendEquation::Equation alpha)
+		{
+			_blendEquation = color;
+			_blendEquationAlpha = alpha;
+		}
+		void getBlendEquation(osg::BlendEquation::Equation& color, osg::BlendEquation::Equation& alpha)
+		{
+			color = _blendEquation;
+			alpha = _blendEquationAlpha;
+		}
+
+		//
+		bool getSkinning() const { return _skinning; }
+		//
+		void setSkinning(bool val) { _skinning = val; }
+		//
+		int getMaxBones() const { return _maxBones; }
+		//
+		void setMaxBones(int val) { _maxBones = val; }
+		//
+		bool getMorphTargets() const { return _morphTargets; }
+		//
+		void setMorphTargets(bool val) { _morphTargets = val; }
+		//
+		bool getMorphNormals() const { return _morphNormals; }
+		//
+		void setMorphNormals(bool val) { _morphNormals = val; }
+		//
+		bool getCastShadow() const { return _castShadow; }
+		//
+		void setCastShadow(bool val) { _castShadow = val; }
+		//
+		bool getReceiveShadow() const { return _receiveShadow; }
+		//
+		void setReceiveShadow(bool val) { _receiveShadow = val; }
+	private:
+		bool _vertexTangents;
+		bool _vertexColors;
+		bool _flatShading;
+		MaterialSideType _side;
+		bool _dithering;
+		bool _premultipliedAlpha;
+		bool _fog;
+		float _alphaTest;
+		bool _instancing;
+		bool _transparent;
+		bool _skinning;
+		int _maxBones;
+		bool _morphTargets;
+		bool _morphNormals;
+		osg::ref_ptr<Material> _depthMaterial;
+		bool _castShadow;
+		bool _receiveShadow;
+		osg::BlendFunc::BlendFuncMode _blendSrc;
+		osg::BlendFunc::BlendFuncMode _blendDst;
+		osg::BlendFunc::BlendFuncMode _blendSrcAlpha;
+		osg::BlendFunc::BlendFuncMode _blendDstAlpha;
+		osg::BlendEquation::Equation _blendEquation;
+		osg::BlendEquation::Equation _blendEquationAlpha;
+	};
+}
+#endif

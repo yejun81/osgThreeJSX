@@ -1,0 +1,64 @@
+
+#ifndef OSGTHREEJSX_MATERIAL_NODE
+#define OSGTHREEJSX_MATERIAL_NODE 1
+#include <osg/NodeCallback>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Material>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT MaterialNodeCullback : public osg::NodeCallback
+	{
+	public:
+		MaterialNodeCullback(const osg::ref_ptr<Material>& material) : _material(material) {}
+
+		virtual ~MaterialNodeCullback() { }
+
+		virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+
+		void setMaterial(const osg::ref_ptr<Material>& material) { _material = material; }
+
+	protected:
+		osg::ref_ptr<Material> _material;
+	};
+
+	template<class T>
+	class MaterialBaseNode : public T
+	{
+	public:
+		MaterialBaseNode() {}
+		virtual ~MaterialBaseNode() {}
+	public:
+		//
+		void setMaterial(const osg::ref_ptr<Material>& material)
+		{
+			_material = material;
+			if (!_callback.valid())
+			{
+				_callback = new MaterialNodeCullback(_material);
+				T::addCullCallback(_callback);
+			}
+			else
+			{
+				_callback->setMaterial(_material);
+			}
+		}
+
+		void removeMaterial()
+		{
+			_material = NULL;
+			if (_callback.valid())
+			{
+				T::removeCullCallback(_callback);
+				_callback = NULL;
+			}
+		}
+		//
+		osg::ref_ptr<Material>& getMaterial() { return _material; }
+	private:
+		osg::ref_ptr<Material> _material;
+		osg::ref_ptr<MaterialNodeCullback> _callback;
+	};
+
+}
+#endif

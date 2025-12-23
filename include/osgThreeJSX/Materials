@@ -1,0 +1,261 @@
+
+#ifndef OSGTHREEJSX_MATERIALS
+#define OSGTHREEJSX_MATERIALS 1
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Programs>
+#include <osgThreeJSX/Material>
+#include <osgThreeJSX/MaterialData>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT MaterialBasic : public Material
+	{
+	public:
+		MaterialBasic();
+		//
+		MaterialBasic(const MaterialBasic& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialBasic();
+		//
+		META_Object(osg, MaterialBasic);
+	public:
+		//
+		virtual const char* getShaderId() { return "basic"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataCommon _common;
+		MaterialDataLight _light;
+		MaterialDataAo _ao;
+		MaterialDataSpecular _specular;
+		MaterialDataEnv _env;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialLambert : public Material
+	{
+	public:
+		MaterialLambert();
+		//
+		MaterialLambert(const MaterialLambert& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialLambert();
+		//
+		META_Object(osg, MaterialLambert);
+	public:
+		//
+		virtual const char* getShaderId() { return "lambert"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataCommon _common;
+		MaterialDataLight _light;
+		MaterialDataAo _ao;
+		MaterialDataSpecular _specular;
+		MaterialDataEnv _env;
+		MaterialDataEmissive _emissive;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialPhong : public Material
+	{
+	public:
+		MaterialPhong();
+		//
+		MaterialPhong(const MaterialPhong& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialPhong();
+		//
+		META_Object(osg, MaterialPhong);
+	public:
+		//
+		virtual const char* getShaderId() { return "phong"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataCommon _common;
+		MaterialDataLight _light;
+		MaterialDataAo _ao;
+		MaterialDataSpecular _specular;
+		MaterialDataEnv _env;
+		MaterialDataEmissive _emissive;
+		MaterialDataBump _bump;
+		MaterialDataNormal _normal;
+		MaterialDataDisplacement _displacement;
+		MaterialDataShininess _shininess;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialStandard : public MaterialBasic
+	{
+	public:
+		MaterialStandard();
+		//
+		MaterialStandard(const MaterialStandard& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialStandard();
+		//
+		META_Object(osg, MaterialStandard);
+	public:
+		//
+		virtual const char* getShaderId() { return "standard"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataEmissive _emissive;
+		MaterialDataBump _bump;
+		MaterialDataNormal _normal;
+		MaterialDataDisplacement _displacement;
+		MaterialDataRoughness _roughness;
+		MaterialDataMetalness _metalness;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialPhysical : public MaterialStandard
+	{
+	public:
+		MaterialPhysical();
+		//
+		MaterialPhysical(const MaterialPhysical& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialPhysical();
+		//
+		META_Object(osg, MaterialPhysical);
+	public:
+		//
+		virtual const char* getShaderId() { return "standard"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataPhysical _physical;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDepth : public Material
+	{
+	public:
+		MaterialDepth();
+		//
+		MaterialDepth(const MaterialDepth& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialDepth();
+		//
+		META_Object(osg, MaterialDepth);
+	public:
+		//
+		virtual const char* getShaderId() { return "depth"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		DepthPackingType _depthPacking;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDistance : public Material
+	{
+	public:
+		MaterialDistance();
+		//
+		MaterialDistance(const MaterialDistance& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialDistance();
+		//
+		META_Object(osg, MaterialDistance);
+	public:
+		//
+		virtual const char* getShaderId() { return "distanceRGBA"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		float _nearDistance;
+		float _farDistance;
+		osg::Vec3 _referencePosition;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialCube : public Material
+	{
+	public:
+		MaterialCube();
+		//
+		MaterialCube(const MaterialCube& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialCube();
+		//
+		META_Object(osg, MaterialCube);
+	public:
+		//
+		virtual const char* getShaderId() { return "cube"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataEnv _env;
+		float _opacity;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialEquirect : public Material
+	{
+	public:
+		MaterialEquirect();
+		//
+		MaterialEquirect(const MaterialEquirect& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialEquirect();
+		//
+		META_Object(osg, MaterialEquirect);
+	public:
+		//
+		virtual const char* getShaderId() { return "equirect"; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		MaterialDataEnv _env;
+		float _opacity;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialShader : public Material
+	{
+	public:
+		MaterialShader();
+		//
+		MaterialShader(const MaterialShader& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~MaterialShader();
+		//
+		META_Object(osg, MaterialShader);
+	public:
+		//
+		virtual const char* getShaderId() { return ""; }
+		//
+		const std::string& getVertexShader() { return _vertexShader; }
+		//
+		void setVertexShader(const std::string& shaderText) { _vertexShader = shaderText; }
+		//
+		const std::string& getFragmentShader() { return _fragmentShader; }
+		//
+		void setFragmentsShader(const std::string& shaderText) { _fragmentShader = shaderText; }
+		//
+		virtual bool generateProgram() { return true; }
+		//
+		virtual bool isRaw() { return false; }
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+	protected:
+		std::string _vertexShader;
+		std::string _fragmentShader;
+	};
+}
+#endif

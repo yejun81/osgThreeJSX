@@ -1,0 +1,75 @@
+#ifndef OSGTHREEJSX_RECTAREALIGHT
+#define OSGTHREEJSX_RECTAREALIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT RectAreaLight : public Light
+	{
+	public:
+		//
+		RectAreaLight();
+		//
+		RectAreaLight(const osg::Vec3& position, const osg::Vec3& direction, const osg::Vec3& color, float intensity, float width, float height);
+		//
+		RectAreaLight(const RectAreaLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_position = other._position;
+			_direction = other._direction;
+			_color = other._color;
+			_width = other._width;
+			_height = other._height;
+		}
+		//
+		virtual ~RectAreaLight();
+
+		META_Object(osg, RectAreaLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_RectArea; }
+		//
+		const osg::Vec3 getColor() { return _color; }
+		//
+		const osg::Vec3 getPosition() { return _position; }
+		//
+		void setPosition(const osg::Vec3& position) { _position = position; }
+		//
+		const osg::Vec3& getDirection() { return _direction; }
+		//point to position of the light
+		void setDirection(const osg::Vec3& direction) { _direction = direction; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+		//
+		float getWidth() { return _width; }
+		//
+		float getHeight() { return _height; }
+	protected:
+		osg::Vec3 _position;
+		osg::Vec3 _direction;//
+		osg::Vec3 _color;
+		float _width;
+		float _height;
+		float _intensity;
+	public:
+		//
+		static osg::ref_ptr<osg::Texture2D> getOrCreateLTC1Texture();
+		//
+		static osg::ref_ptr<osg::Texture2D> getOrCreateLTC2Texture();
+	private:
+		//
+		static osg::ref_ptr<osg::Texture2D> _ltc1;
+		static osg::ref_ptr<osg::Texture2D> _ltc2;
+	};
+}
+
+#endif

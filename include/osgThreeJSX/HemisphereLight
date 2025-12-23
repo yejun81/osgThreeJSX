@@ -1,0 +1,57 @@
+#ifndef OSGTHREEJSX_HEMISPHERELIGHT
+#define OSGTHREEJSX_HEMISPHERELIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT HemisphereLight : public Light
+	{
+	public:
+		//
+		HemisphereLight();
+		//
+		HemisphereLight(const osg::Vec3& direction, const osg::Vec3& skyColor, const osg::Vec3& groundColor, float intensity);
+		//
+		HemisphereLight(const HemisphereLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_direction = other._direction;
+			_skyColor = other._skyColor;
+			_groundColor = other._groundColor;
+			_intensity = other._intensity;
+		}
+		//
+		virtual ~HemisphereLight();
+
+		META_Object(osg, HemisphereLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Hemisphere; }
+		//
+		const osg::Vec3 getSkyColor() { return _skyColor; }
+		//
+		const osg::Vec3 getGroundColor() { return _groundColor; }
+		//
+		const osg::Vec3& getDirection() { return _direction; }
+		//point to position of the light
+		void setDirection(const osg::Vec3& direction) { _direction = direction; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+	protected:
+		osg::Vec3 _direction;
+		osg::Vec3 _skyColor;
+		osg::Vec3 _groundColor;
+		float _intensity;
+	};
+}
+
+#endif

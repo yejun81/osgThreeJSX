@@ -1,0 +1,48 @@
+#ifndef OSGTHREEJSX_INSTANCEGEOMETRY
+#define OSGTHREEJSX_INSTANCEGEOMETRY 1
+#include <osg/Geometry>
+#include <osg/Texture2D>
+#include <unordered_map>
+#include <osgThreeJSX/Export>
+
+namespace osgThreeJSX
+{
+	/** InstanceGeometry doesn't inherit from osg::Geometry, for convenience of geometry instance manager, for this reason, 
+	* it can't be add to osg::Geode as child, or crash on osgUtil::IntersectionVisitor. */
+    class OSGTHREEJSX_EXPORT InstanceGeometry : public osg::Node
+    {
+    public:
+
+		InstanceGeometry();
+
+		InstanceGeometry(const InstanceGeometry& rth, const osg::CopyOp& copyop);
+
+		virtual ~InstanceGeometry();
+	public:
+		//
+		virtual void traverse(osg::NodeVisitor& nv);
+
+		virtual osg::BoundingSphere computeBound() const;
+	public:
+		//
+		void setGeometry(osg::Geometry* geometry);
+		//
+		void addInstance(const osg::Matrix& mat);
+		//
+		osg::ref_ptr<osg::Texture2D> getInstanceTexture() { return _instanceTexture; }
+	protected:
+		//
+		void setupInstanceData();
+		//
+		void setPrimitiveSetNum();
+		//
+		osg::Matrix getInstanceMatrix(unsigned int idx) const;
+	private:
+		osg::ref_ptr<osg::Image> _instanceImage;
+		osg::ref_ptr<osg::Texture2D> _instanceTexture;
+		unsigned int _instanceNum;
+		osg::ref_ptr<osg::Geometry> _geometry;
+    };
+} 
+
+#endif

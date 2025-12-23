@@ -1,0 +1,198 @@
+#ifndef OSGTHREEJSX_RENDER_STATE
+#define OSGTHREEJSX_RENDER_STATE 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/Texture2D>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osg/MatrixTransform>
+#include <osgUtil/CullVisitor>
+
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+#include <osgThreeJSX/Programs>
+#include <osgThreeJSX/Shadow>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT FogBase : public osg::Object
+	{
+	public:
+		FogBase() {}
+		//
+		FogBase(const FogBase& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY) {}
+		//
+		virtual ~FogBase() {};
+
+		META_Object(osg, FogBase);
+	public:
+		osg::Vec3 _color;
+	};
+
+	class OSGTHREEJSX_EXPORT Fog : public FogBase
+	{
+	public:
+		float _near;
+		float _far;
+	};
+
+	class OSGTHREEJSX_EXPORT FogExp2 : public FogBase
+	{
+	public:
+		float _density;
+	};
+
+	struct OSGTHREEJSX_EXPORT Capabilities
+	{
+		std::string precision;
+		std::string glslversion;
+		bool supportsVertexTextures;
+
+		Capabilities();
+	};
+
+	class CullSettingAutoRecover
+	{
+	public:
+		//
+		CullSettingAutoRecover(osgUtil::CullVisitor* cv, osg::CullSettings::ComputeNearFarMode mode)
+		{
+			_cv = cv;
+			_oldMode = cv->getComputeNearFarMode();
+			_oldMask = cv->getInheritanceMask();
+			cv->setComputeNearFarMode(mode);
+		}
+		//
+		~CullSettingAutoRecover()
+		{
+			_cv->setComputeNearFarMode(_oldMode);
+			_cv->setInheritanceMask(_oldMask);
+		}
+	private:
+		osgUtil::CullVisitor* _cv;
+		osg::CullSettings::ComputeNearFarMode _oldMode;
+		osg::CullSettings::InheritanceMask _oldMask;
+	};
+
+	class MaterialDataEnv;
+	class OSGTHREEJSX_EXPORT RenderState : public osg::Object
+	{
+	public:
+		RenderState();
+		//
+		RenderState(const RenderState& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY) {}
+		//
+		virtual ~RenderState() {}
+
+		META_Object(osg, RenderState);
+	public:
+		//
+		void setupCamera(osg::Camera* camera, Light* light = nullptr);
+		//
+		void onCull(osgUtil::CullVisitor* cv);
+		//
+		static RenderState* FromCamera(osg::Camera* camera);
+	protected:
+		osg::ref_ptr<osg::Camera> _camera;
+		osg::ref_ptr<osg::NodeCallback> _cameraCallback;
+	public:
+		//
+		void addLight(Light* light);
+		//
+		int getLightNumOfType(LightType type);
+		//
+		LightList& getAllLight() { return _lightList; }
+		//
+		LightList* getLightsOfType(LightType type);
+		//
+		int getShadowNumOfType(LightType type);
+	protected:
+		//
+		void updateDirectionLight(osgUtil::CullVisitor* cv, int& textureUnit);
+		//
+		void updatePointLight(osgUtil::CullVisitor* cv, int& textureUnit);
+		//
+		void updateSpotLight(osgUtil::CullVisitor* cv, int& textureUnit);
+		//
+		void updateHemisphereLight(osgUtil::CullVisitor* cv, int& textureUnit);
+		//
+		void updateRectAreaLight(osgUtil::CullVisitor* cv, int& textureUnit);
+		//
+		void updateProbeLight(osgUtil::CullVisitor* cv, int& textureUnit);
+	protected:
+		LightMap _lightMap;
+		LightList _lightList;
+	public:
+		//
+		osg::ref_ptr<ShadowMap> getShadowMap() { return _shadowMap; }
+		//
+		void setupShadow(osg::Node* root, ShadowMapType mapType = ShadowMapType_BasicShadowMap);
+		//
+		void useTextureUnit(int& textureUnit);
+	protected:
+		//
+		osg::ref_ptr<ShadowMap> _shadowMap;
+	public:
+		//
+		void setBackground(osg::Texture* bg);
+		//
+		MaterialDataEnv* getBackgroudEnv();
+	private:
+		//
+		osg::ref_ptr<osg::MatrixTransform> _bgNode;
+		TextureEncodingType _outputEncoding;
+		ToneMappingType _toneMapping;
+		float _toneMappingExposure;
+		float _toneMappingWhitePoint;
+		float _gammaFactor;
+		osg::ref_ptr<FogBase> _fog;
+		bool _logarithmicDepthBuffer;
+		bool _physicallyCorrectLights;
+		Capabilities _capabilities;
+		osg::ref_ptr<Light> _shadowLight;
+		MaterialDataEnv* _bgEnv;
+	public:
+		//
+		osgThreeJSX::TextureEncodingType getOutputEncoding() const { return _outputEncoding; }
+		//
+		void setOutputEncoding(osgThreeJSX::TextureEncodingType val) { _outputEncoding = val; }
+		//
+		osgThreeJSX::ToneMappingType getToneMapping() const { return _toneMapping; }
+		//
+		void setToneMapping(osgThreeJSX::ToneMappingType val) { _toneMapping = val; }
+		//
+		float getToneMappingExposure() const { return _toneMappingExposure; }
+		//
+		void setToneMappingExposure(float val) { _toneMappingExposure = val; }
+		//
+		float getToneMappingWhitePoint() const { return _toneMappingWhitePoint; }
+		//
+		void setToneMappingWhitePoint(float val) { _toneMappingWhitePoint = val; }
+		//
+		float getGammaFactor() const { return _gammaFactor; }
+		//
+		void setGammaFactor(float val) { _gammaFactor = val; }
+		//
+		osg::ref_ptr<osgThreeJSX::FogBase> getFog() const { return _fog; }
+		//
+		void setFog(osg::ref_ptr<osgThreeJSX::FogBase> val) { _fog = val; }
+		//
+		bool getLogarithmicDepthBuffer() const { return _logarithmicDepthBuffer; }
+		//
+		void setLogarithmicDepthBuffer(bool val) { _logarithmicDepthBuffer = val; }
+		//
+		bool getPhysicallyCorrectLights() const { return _physicallyCorrectLights; }
+		//
+		void setPhysicallyCorrectLights(bool val) { _physicallyCorrectLights = val; }
+		//
+		osgThreeJSX::Capabilities getCapabilities() const { return _capabilities; }
+		//
+		void setCapabilities(osgThreeJSX::Capabilities val) { _capabilities = val; }
+		//
+		osg::ref_ptr<osgThreeJSX::Light> getShadowLight() const { return _shadowLight; }
+		//
+		void setShadowLight(osg::ref_ptr<osgThreeJSX::Light> val) { _shadowLight = val; }
+	};
+}
+#endif

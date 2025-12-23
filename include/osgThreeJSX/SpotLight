@@ -1,0 +1,82 @@
+#ifndef OSGTHREEJSX_SPOTLIGHT
+#define OSGTHREEJSX_SPOTLIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+	class Light;
+	class OSGTHREEJSX_EXPORT SpotLight : public Light
+	{
+	public:
+		//
+		SpotLight();
+		//
+		SpotLight(const osg::Vec3& position, const osg::Vec3& direction, const osg::Vec3& color, float intensity, float distance, float angle, float penumbra, float decay);
+		//
+		SpotLight(const SpotLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_position = other._position;
+			_direction = other._direction;
+			_color = other._color;
+			_intensity = other._intensity;
+			_distance = other._distance;
+			_angle = other._angle;
+			_penumbra = other._penumbra;
+			_decay = other._decay;
+		}
+		//
+		virtual ~SpotLight();
+
+		META_Object(osg, SpotLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Spot; }
+		//
+		const osg::Vec3 getColor() { return _color; }
+		//
+		const osg::Vec3 getPosition() { return _position; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+		//
+		float getDistance() { return _distance; }
+		//
+		void setDistance(float distance) { _distance = distance; }
+		//
+		float getDecay() { return _decay; }
+		//
+		void setDecay(float decay) { _decay = decay; }
+		//
+		const osg::Vec3& getDirection() { return _direction; }
+		//point to position of the light
+		void setDirection(const osg::Vec3& direction) { _direction = direction; }
+		//
+		float getAngle() { return _angle; }
+		//
+		void setAngle(float angle) { _angle = angle; }
+		//
+		float getPenumbra() { return _penumbra; }
+		//
+		void setPenumbra(float penumbra) { _penumbra = penumbra; }
+	protected:
+		osg::Vec3 _position;
+		osg::Vec3 _direction;//
+		osg::Vec3 _color;
+		float _intensity;
+		float _distance;
+		float _angle;
+		float _penumbra;
+		float _decay;
+	};
+}
+
+#endif

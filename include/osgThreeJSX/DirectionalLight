@@ -1,0 +1,56 @@
+#ifndef OSGTHREEJSX_DIRECTIONALLIGHT
+#define OSGTHREEJSX_DIRECTIONALLIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT DirectionalLight : public Light
+	{
+	public:
+		//
+		DirectionalLight();
+		//
+		DirectionalLight(const osg::Vec3& direction, const osg::Vec3& color, float intensity, bool isflow = false);
+		//
+		DirectionalLight(const DirectionalLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_direction = other._direction;
+			_color = other._color;
+			_intensity = other._intensity;
+		}
+		//
+		virtual ~DirectionalLight() {}
+
+		META_Object(osg, DirectionalLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Direction; }
+		//
+		const osg::Vec3 getColor() { return _color; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+		//
+		float isFlow() { return _isflow; }
+		//
+		const osg::Vec3& getDirection() { return _direction; }
+		//
+		void setDirection(const osg::Vec3& direction) { _direction = direction; }
+	protected:
+		osg::Vec3 _direction;//
+		osg::Vec3 _color;
+		float _intensity;
+		bool _isflow;
+	};
+}
+
+#endif

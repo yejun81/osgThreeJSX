@@ -1,0 +1,71 @@
+#ifndef OSGTHREEJSX_POINTLIGHT
+#define OSGTHREEJSX_POINTLIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+
+
+	class Light;
+	class ShadowMap;
+
+
+	class OSGTHREEJSX_EXPORT PointLight : public Light
+	{
+	public:
+		//
+		PointLight();
+		//
+		PointLight(const osg::Vec3& position, const osg::Vec3& color, float intensity, float distance, float decay);
+		//
+		PointLight(const PointLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_position = other._position;
+			_color = other._color;
+			_intensity = other._intensity;
+			_distance = other._distance;
+			_decay = other._decay;
+		}
+		//
+		virtual ~PointLight();
+
+		META_Object(osg, PointLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Point; }
+		//
+		const osg::Vec3 getColor() { return _color; }
+		//
+		const osg::Vec3 getPosition() { return _position; }
+		//
+		void setPosition(const osg::Vec3& position) { _position = position; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+		//
+		float getDistance() { return _distance; }
+		//
+		void setDistance(float distance) { _distance = distance; }
+		//
+		float getDecay() { return _decay; }
+		//
+		void setDecay(float decay) { _decay = decay; }
+	protected:
+		osg::Vec3 _position;
+		osg::Vec3 _color;
+		float _intensity;
+		float _distance;
+		float _decay;
+	};
+}
+
+#endif

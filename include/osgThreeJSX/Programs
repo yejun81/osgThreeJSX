@@ -1,0 +1,272 @@
+#ifndef OSGTHREEJSX_PROGRAMS
+#define OSGTHREEJSX_PROGRAMS 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osgUtil/CullVisitor>
+#include <unordered_map>
+#include <osgThreeJSX/Export>
+
+namespace osgThreeJSX
+{
+
+	enum EnvMapModeType
+	{
+		EnvMapModeType_CubeReflectionMapping = 0,
+		EnvMapModeType_CubeRefractionMapping = 1,
+		EnvMapModeType_CubeUVReflectionMapping = 2,
+		EnvMapModeType_CubeUVRefractionMapping = 3,
+		EnvMapModeType_EquirectangularReflectionMapping = 4,
+		EnvMapModeType_EquirectangularRefractionMapping = 5,
+		EnvMapModeType_SphericalReflectionMapping = 6,
+	};
+
+	enum EnvMapCombineType
+	{
+		EnvMapCombineType_No = 0,
+		EnvMapCombineType_MultiplyOperation = 1,
+		EnvMapCombineType_MixOperation = 2,
+		EnvMapCombineType_AddOperation = 3,
+	};
+
+	enum TextureEncodingType
+	{
+		TextureEncodingType_No = 0,
+		TextureEncodingType_LinearEncoding = 3000,
+		TextureEncodingType_sRGBEncoding = 3001,
+		TextureEncodingType_RGBEEncoding = 3002,
+		TextureEncodingType_LogLuvEncoding = 3003,
+		TextureEncodingType_RGBM7Encoding = 3004,
+		TextureEncodingType_RGBM16Encoding = 3005,
+		TextureEncodingType_RGBDEncoding = 3006,
+		TextureEncodingType_GammaEncoding = 3007,
+	};
+
+	struct TextureEncodingComponent
+	{
+		std::string name;
+		std::string component;
+	};
+
+	enum NormalMapType
+	{
+		NormalMapType_ObjectSpaceNormalMap = 0,
+		NormalMapType_TangentSpaceNormalMap = 1,
+	};
+
+	enum ToneMappingType
+	{
+		ToneMappingType_NoToneMapping = 0,
+		ToneMappingType_LinearToneMapping = 1,
+		ToneMappingType_ReinhardToneMapping = 2,
+		ToneMappingType_Uncharted2ToneMapping = 3,
+		ToneMappingType_CineonToneMapping = 4,
+		ToneMappingType_ACESFilmicToneMapping = 5,
+	};
+
+	enum DepthPackingType
+	{
+		DepthPackingType_No = 0,
+		DepthPackingType_BasicDepthPacking = 3200,
+		DepthPackingType_RGBADepthPacking = 3201,
+	};
+
+	enum ShadowMapType
+	{
+		ShadowMapType_BasicShadowMap = 0,
+		ShadowMapType_PCFShadowMap = 1,
+		ShadowMapType_PCFSoftShadowMap = 2,
+		ShadowMapType_VSMShadowMap = 3
+	};
+
+	typedef std::unordered_map<std::string, std::string> DefineMap;
+
+	class ProgramParameters
+	{
+	public:
+		bool isRaw;
+		std::string shaderId;
+		std::string vertex;
+		std::string fragment;
+		DefineMap defines;
+		std::string precision;
+		std::string glslversion;
+
+		float gammaFactor;
+
+		bool fog;
+		bool useFog;
+		bool fogExp2;
+
+		bool map;
+		TextureEncodingType mapEncoding;
+
+		bool matcap;
+		TextureEncodingType matcapEncoding;
+
+		bool envMap;
+		EnvMapModeType envMapMode;
+		EnvMapCombineType combine;
+		TextureEncodingType envMapEncoding;
+
+		bool lightMap;
+		TextureEncodingType lightMapEncoding;
+
+		bool aoMap;
+
+		bool emissiveMap;
+		TextureEncodingType emissiveMapEncoding;
+
+		TextureEncodingType outputEncoding;
+
+		bool bumpMap;
+
+		bool normalMap;
+		bool objectSpaceNormalMap;
+		bool tangentSpaceNormalMap;
+
+		bool clearcoatMap;
+		bool clearcoatRoughnessMap;
+		bool clearcoatNormalMap;
+
+		bool displacementMap;
+		bool supportsVertexTextures;
+
+		bool specularMap;
+		bool roughnessMap;
+		bool metalnessMap;
+		bool alphaMap;
+
+		bool gradientMap;
+
+		bool vertexTangents;
+		bool vertexColors;
+		bool vertexUvs;
+		bool uvsVertexOnly;
+
+		bool instancing;
+
+		bool flatShading;
+		bool sizeAttenuation;
+
+		int maxBones;
+		bool skinning;
+		bool useVertexTexture;
+
+		bool morphTargets;
+		bool morphNormals;
+
+		bool dithering;
+
+		bool shadowMapEnabled;
+		ShadowMapType shadowMapType;
+
+		ToneMappingType toneMapping;
+		bool physicallyCorrectLights;
+		bool premultipliedAlpha;
+
+		DepthPackingType depthPacking;
+
+		bool logarithmicDepthBuffer;
+		bool rendererExtensionFragDepth;
+
+		bool sheen;
+
+		bool doubleSided;
+		bool flipSided;
+
+		float alphaTest;
+
+		int numDirLights;
+		int numSpotLights;
+		int numRectAreaLights;
+		int numPointLights;
+		int numHemiLights;
+		int numDirLightShadows;
+		int numSpotLightShadows;
+		int numPointLightShadows;
+
+		int numClippingPlanes;
+		int numClipIntersection;
+
+		bool isOrthographic;
+
+		ProgramParameters();
+	};
+
+	class ShaderObject;
+	class OSGTHREEJSX_EXPORT Program : public osg::Referenced
+	{
+	public:
+		Program();
+		//
+		Program(const std::string& cacheKey, const ProgramParameters& parameters);
+		//
+		const std::string& getKey() { return _cacheKey; }
+		//
+		const osg::ref_ptr<osg::Program>& getOsgProgram() { return _osgProgram; }
+
+		ShaderObject* getShaderObject(const std::string& name);
+	protected:
+		//
+		std::string generatePrecision(const ProgramParameters& parameters);
+		//
+		std::string generateDefines(const ProgramParameters& parameters);
+		//
+		std::string resolveIncludes(const std::string& shaderText);
+		//
+		std::string replaceLightNums(const std::string& shaderText, const ProgramParameters& parameters);
+		//
+		std::string replaceClippingPlaneNums(const std::string& shaderText, const ProgramParameters& parameters);
+		//
+		std::string unrollLoops(const std::string& shaderText);
+		//
+		std::string generateEnvMapModeDefine(const ProgramParameters& parameters);
+		//
+		std::string generateEnvMapTypeDefine(const ProgramParameters& parameters);
+		//
+		std::string generateEnvMapBlendingDefine(const ProgramParameters& parameters);
+		//
+		std::string generateShadowMapTypeDefine(const ProgramParameters& parameters);
+		//
+		std::string getToneMappingFunction(const std::string& functionName, const ProgramParameters& parameters);
+		//
+		std::string getTexelDecodingFunction(const std::string& functionName, TextureEncodingType encoding);
+		//
+		std::string getTexelEncodingFunction(const std::string& functionName, TextureEncodingType encoding);
+		//
+	private:
+		std::string _cacheKey;
+		osg::ref_ptr<osg::Program> _osgProgram;
+	};
+
+	class Material;
+	class OSGTHREEJSX_EXPORT ProgramGenerator
+	{
+	public:
+		ProgramGenerator();
+		//
+		static ProgramGenerator& instance();
+
+		void Destory();
+	public:
+		//
+		void getParameters(Material* material, osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		std::string getKey(const ProgramParameters& parameters);
+		//
+		osg::ref_ptr<Program> getOrCreateProgram(const std::string& cacheKey, const ProgramParameters& parameters);
+	public:
+		//
+		TextureEncodingComponent* getTextureEncodingComponent(TextureEncodingType type);
+	protected:
+		typedef std::unordered_map<std::string, osg::ref_ptr<Program> > ProgramMap;
+		ProgramMap _cachePrograms;
+	public:
+		//
+		typedef std::unordered_map<int, TextureEncodingComponent> TextureEncodingComponentMap;
+		TextureEncodingComponentMap _textureEncodingMap;
+	};
+}
+#endif

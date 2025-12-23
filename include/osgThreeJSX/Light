@@ -1,0 +1,118 @@
+#ifndef OSGTHREEJSX_LIGHTS
+#define OSGTHREEJSX_LIGHTS 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+
+namespace osgThreeJSX
+{
+
+	enum LightType
+	{
+		LightType_Ambient = 1,
+		LightType_Direction = 2,
+		LightType_Point = 3,
+		LightType_Spot = 4,
+		LightType_Hemisphere = 5,
+		LightType_RectArea = 6,
+		LightType_Probe = 7
+	};
+
+	class Light;
+	class ShadowMap;
+
+	typedef std::vector<osg::Vec4i> ViewportList;
+	class OSGTHREEJSX_EXPORT LightShadow : public osg::Object
+	{
+	public:
+		//
+		LightShadow();
+		//
+		LightShadow(const LightShadow& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		//
+		virtual ~LightShadow();
+	public:
+		//
+		virtual void setupCamera(ShadowMap* shadowMap, const osg::ref_ptr<Light>& light, const osg::ref_ptr<osg::Node>& node) {}
+		//
+		virtual void renderCamera(ShadowMap* shadowMap, osg::ref_ptr<Light>& light, osgUtil::CullVisitor* cv) {}
+		//
+		void render(ShadowMap* shadowMap, osg::ref_ptr<Light>& light, osg::ref_ptr<osg::Node>& sceneNode, osgUtil::CullVisitor* cv);
+	protected:
+		//
+		void setupTexture(ShadowMap* shadowMap, const osg::ref_ptr<Light>& light);
+		//
+		void setupVSM(ShadowMap* shadowMap, const osg::ref_ptr<Light>& light);
+		//
+		void renderVSM(ShadowMap* shadowMap, osgUtil::CullVisitor* cv);
+	public:
+		//
+		osg::ref_ptr<osg::Camera> getCamera() { return _camera; }
+		//
+		void setCamera(const osg::ref_ptr<osg::Camera>& camera) { _camera = camera; }
+		//
+		osg::ref_ptr<osg::Texture>& getMap() { return _map; }
+		//
+		osg::Vec2& getMapSize() { return _mapSize; }
+		//
+		const osg::Matrix& getMatrix() { return _matrix; }
+		//
+		void setMatrix(const osg::Matrix& matrix) { _matrix = matrix; }
+		//
+		float getRadius() { return _radius; }
+		//
+		float getBias() { return _bias; }
+		//
+		void setBias(float bias) { _bias = bias; }
+		//
+		void setRadius(float radius) { _radius = radius; }
+	protected:
+		//
+		void reset();
+	protected:
+		osg::ref_ptr<osg::Camera> _camera;
+		osg::ref_ptr<osg::Texture> _map;
+		bool _inited;
+	public:
+		osg::ref_ptr<osg::Texture> _mapVsm;
+		osg::ref_ptr<osg::Camera> _cameraVsmVertical;
+		osg::ref_ptr<osg::Camera> _cameraVsmHorizonal;
+		osg::Vec2 _mapSize;
+		osg::Vec2i _frameExtents;
+		osg::Matrix _matrix;
+		float _bias;
+		float _radius;
+		ViewportList _viewports;
+	};
+
+	class OSGTHREEJSX_EXPORT Light : public osg::Object
+	{
+	public:
+		//
+		Light() { _castShadow = false; }
+		//
+		virtual ~Light() {}
+	public:
+		//
+		virtual LightType getType() = 0;
+		//
+		virtual osg::ref_ptr<LightShadow>& getShadow() { return _shadow; }
+		//
+		bool getCastShadow() { return _castShadow; }
+		//
+		void setCastShadow(bool flag) { _castShadow = flag; }
+	protected:
+		osg::ref_ptr<LightShadow> _shadow;
+		bool _castShadow;
+	};
+
+	typedef std::vector<osg::ref_ptr<Light> > LightList;
+	typedef std::map<LightType, LightList> LightMap;
+}
+
+#endif

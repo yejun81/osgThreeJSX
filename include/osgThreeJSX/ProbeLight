@@ -1,0 +1,52 @@
+#ifndef OSGTHREEJSX_PROBELIGHT
+#define OSGTHREEJSX_PROBELIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+#define PROBE_SH_NUM 9
+
+	class OSGTHREEJSX_EXPORT ProbeLight : public Light
+	{
+	public:
+		//
+		ProbeLight();
+		//
+		ProbeLight(const osg::ref_ptr<osg::TextureCubeMap>& cubeMap, float intensity);
+		//
+		ProbeLight(const ProbeLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_intensity = other._intensity;
+			for (int i = 0; i < sizeof(_shCoefficients) / sizeof(_shCoefficients[0]); i++)
+			{
+				_shCoefficients[i] = other._shCoefficients[i];
+			}
+		}
+		//
+		virtual ~ProbeLight();
+
+		META_Object(osg, ProbeLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Probe; }
+		//
+		osg::Vec3 getCoefficient(unsigned int idx);
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+	protected:
+		float _intensity;
+		osg::Vec3d _shCoefficients[PROBE_SH_NUM];
+	};
+}
+
+#endif

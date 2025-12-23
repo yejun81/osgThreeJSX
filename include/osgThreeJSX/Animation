@@ -1,0 +1,101 @@
+#ifndef OSGTHREEJSX_ANIMATION
+#define OSGTHREEJSX_ANIMATION 1
+#include <osg/Referenced>
+#include <vector>
+#include <map>
+#include <osg/Vec3>
+#include <osg/Camera>
+#include <osg/StateSet>
+#include <osg/Uniform>
+#include <unordered_map>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/MaterialNode>
+#include <osgUtil/CullVisitor>
+#include <osgUtil/UpdateVisitor>
+#undef RELATIVE
+#include <osgAnimation/MorphGeometry>
+#include <osgAnimation/RigGeometry>
+#include <osgAnimation/RigTransformHardware>
+#include <osgAnimation/BasicAnimationManager>
+
+namespace osgThreeJSX
+{
+    class OSGTHREEJSX_EXPORT MaterialMorphGeometry : public MaterialBaseNode<osgAnimation::MorphGeometry>
+    {
+        
+    };
+
+    class OSGTHREEJSX_EXPORT MorphTransformMaterial : public osgAnimation::MorphTransform
+    {
+    public:
+
+        MorphTransformMaterial();
+
+        MorphTransformMaterial(const MorphTransformMaterial& rth, const osg::CopyOp& copyop);
+
+        META_Object(osgAnimation, MorphTransformMaterial);
+
+        virtual void operator()(osgAnimation::MorphGeometry&);
+    protected:
+        //
+        bool init(osgAnimation::MorphGeometry&);
+    protected:
+        osg::ref_ptr<osg::Uniform> _uniTargetInflue;
+        bool _needInit;
+    };
+
+    class OSGTHREEJSX_EXPORT MaterialRigGeometry : public MaterialBaseNode<osgAnimation::RigGeometry>
+    {
+
+    };
+
+    class OSGTHREEJSX_EXPORT RigTransformMaterial : public osgAnimation::RigTransform
+    {
+    public:
+        typedef std::vector<osg::ref_ptr<osgAnimation::Bone> > BonePalette;
+        typedef osg::ref_ptr<osg::MatrixfArray> MatrixPalette;
+    public:
+        RigTransformMaterial();
+
+        RigTransformMaterial(const RigTransformMaterial& rth, const osg::CopyOp& copyop);
+
+        META_Object(osgAnimation, RigTransformMaterial);
+
+        virtual void operator()(osgAnimation::RigGeometry&);
+    public:
+        //
+        void addBone(const osg::ref_ptr<osgAnimation::Bone>& bone) { _bonePalette.push_back(bone); }
+        //
+        void setMatrixPalette(const MatrixPalette& matrixPalette) { _matrixPalette = matrixPalette; }
+    protected:
+        //
+        virtual bool init(osgAnimation::RigGeometry&);
+        //
+        void computeMatrixPaletteUniform(const osg::Matrix& transformFromSkeletonToGeometry, const osg::Matrix& invTransformFromSkeletonToGeometry);
+    protected:
+        bool _needInit;
+        osg::ref_ptr<osg::Uniform> _uniformMatrixPalette;
+        osg::ref_ptr<osg::Uniform> _uniformBindMatrixInverse;
+        BonePalette _bonePalette;
+        MatrixPalette _matrixPalette;
+    };
+
+    class OSGTHREEJSX_EXPORT AnimationNode : public osg::MatrixTransform
+    {
+    public:
+        AnimationNode();
+
+        AnimationNode(const AnimationNode& rth, const osg::CopyOp& copyop);
+
+        META_Object(osgAnimation, AnimationNode);
+	public:
+		//
+		void getMorphGeometryByName(const std::string& name, std::vector<osgAnimation::MorphGeometry*>& geoms);
+    public:
+        //
+        osg::ref_ptr<osgAnimation::BasicAnimationManager>& getAnimationManager() { return _animationMgr; }
+    protected:
+        osg::ref_ptr<osgAnimation::BasicAnimationManager> _animationMgr;
+    };
+} 
+#endif

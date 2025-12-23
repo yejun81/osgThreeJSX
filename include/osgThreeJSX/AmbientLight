@@ -1,0 +1,50 @@
+#ifndef OSGTHREEJSX_AMBIENTLIGHT
+#define OSGTHREEJSX_AMBIENTLIGHT 1
+#include <osg/NodeCallback>
+#include <osg/Texture>
+#include <osg/TextureCubeMap>
+#include <osg/Uniform>
+#include <osg/Program>
+#include <osg/Camera>
+#include <osgUtil/CullVisitor>
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Light>
+
+namespace osgThreeJSX
+{
+	class Light;
+	class ShadowMap;
+
+	class OSGTHREEJSX_EXPORT AmbientLight : public Light
+	{
+	public:
+		//
+		AmbientLight() { _color = osg::Vec3(0.0f, 0.0f, 0.0f); _intensity = 1.0f; }
+		//
+		AmbientLight(const osg::Vec3& color, float intensity) : _color(color), _intensity(intensity) {}
+		//
+		AmbientLight(const AmbientLight& other, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY)
+		{
+			_color = other._color;
+			_intensity = other._intensity;
+		}
+		//
+		virtual ~AmbientLight() {}
+
+		META_Object(osg, AmbientLight);
+	public:
+		//
+		virtual LightType getType() { return LightType_Ambient; }
+		//
+		const osg::Vec3 getColor() { return _color; }
+		//
+		void setIntensity(float intensity) { _intensity = intensity; }
+		//
+		float getIntensity() { return _intensity; }
+	protected:
+		osg::Vec3 _color;
+		float _intensity;
+	};
+}
+
+#endif

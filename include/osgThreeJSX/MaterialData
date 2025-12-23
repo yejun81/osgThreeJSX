@@ -1,0 +1,315 @@
+
+#ifndef OSGTHREEJSX_MATERIAL_DATA
+#define OSGTHREEJSX_MATERIAL_DATA 1
+#include <osgThreeJSX/Export>
+#include <osgThreeJSX/Material>
+
+namespace osgThreeJSX
+{
+	class OSGTHREEJSX_EXPORT MaterialDataBase
+	{
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters) {}
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures) {}
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataCommon : public MaterialDataBase
+	{
+	public:
+		MaterialDataCommon();
+		//
+		virtual ~MaterialDataCommon() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		const osg::ref_ptr<osg::Texture>& getMap() { return map; }
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture, TextureEncodingType encoding = TextureEncodingType_LinearEncoding) { map = texture; mapEncoding = encoding; }
+		//
+		void setMapEncodingType(TextureEncodingType type) { mapEncoding = type; }
+		//
+		TextureEncodingType getMapEncodingType() { return mapEncoding; }
+	public:
+		osg::Vec3 color;
+		float opacity;
+
+		osg::ref_ptr<osg::Texture> map;
+		TextureEncodingType mapEncoding;
+		osg::Matrix3 uvTransform;
+		osg::Matrix3 uv2Transform;
+
+		osg::ref_ptr<osg::Texture> alphaMap;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataSpecular : public MaterialDataBase
+	{
+	public:
+		MaterialDataSpecular() { specular = osg::Vec3(1.0, 1.0, 1.0); }
+		//
+		virtual ~MaterialDataSpecular() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { specularMap = texture; }
+	public:
+		osg::ref_ptr<osg::Texture> specularMap;
+		osg::Vec3 specular;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataEnv : public MaterialDataBase
+	{
+	public:
+		MaterialDataEnv() { reflectivity = 1.0; refractionRatio = 0.98; envMapMode = EnvMapModeType_CubeReflectionMapping; envMapIntensity = 1.0; envMapEncoding = TextureEncodingType_sRGBEncoding; combine = EnvMapCombineType_MultiplyOperation; }
+		//
+		virtual ~MaterialDataEnv() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture);
+	public:
+		osg::ref_ptr<osg::Texture> envMap;
+		EnvMapModeType envMapMode;
+		EnvMapCombineType combine;
+		TextureEncodingType envMapEncoding;
+		float envMapIntensity;
+		float reflectivity;
+		float refractionRatio;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataAo : public MaterialDataBase
+	{
+	public:
+		MaterialDataAo() { aoMapIntensity = 1.0; }
+		//
+		virtual ~MaterialDataAo() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		osg::ref_ptr<osg::Texture> aoMap;
+		float aoMapIntensity;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataLight : public MaterialDataBase
+	{
+	public:
+		MaterialDataLight() {}
+		//
+		virtual ~MaterialDataLight() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		osg::ref_ptr<osg::Texture> lightMap;
+		float lightMapIntensity;
+		TextureEncodingType lightMapEncoding;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataMatcap : public MaterialDataBase
+	{
+	public:
+		MaterialDataMatcap() {}
+		//
+		virtual ~MaterialDataMatcap() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture, TextureEncodingType encoding = TextureEncodingType_LinearEncoding) { matcap = texture; matcapEncoding = encoding; }
+		//
+		void setMapEncodingType(TextureEncodingType type) { matcapEncoding = type; }
+		//
+		TextureEncodingType getMapEncodingType() { return matcapEncoding; }
+	public:
+		osg::ref_ptr<osg::Texture> matcap;
+		TextureEncodingType matcapEncoding;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataEmissive : public MaterialDataBase
+	{
+	public:
+		MaterialDataEmissive(): emissiveIntensity(1.0) {}
+		//
+		virtual ~MaterialDataEmissive() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture, TextureEncodingType encoding = TextureEncodingType_LinearEncoding) { emissiveMap = texture; emissiveMapEncoding = encoding; }
+		//
+		void setMapEncodingType(TextureEncodingType type) { emissiveMapEncoding = type; }
+		//
+		TextureEncodingType getMapEncodingType() { return emissiveMapEncoding; }
+	public:
+		osg::ref_ptr<osg::Texture> emissiveMap;
+		TextureEncodingType emissiveMapEncoding;
+		osg::Vec3 emissive;
+		float emissiveIntensity;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataBump : public MaterialDataBase
+	{
+	public:
+		MaterialDataBump() {}
+		//
+		virtual ~MaterialDataBump() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { bumpMap = texture;}
+	public:
+		osg::ref_ptr<osg::Texture> bumpMap;
+		float bumpScale;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataNormal : public MaterialDataBase
+	{
+	public:
+		MaterialDataNormal() { normalScale = osg::Vec2(1.0, 1.0); normalMapType = NormalMapType_TangentSpaceNormalMap; }
+		//
+		virtual ~MaterialDataNormal() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { normalMap = texture; }
+	public:
+		osg::ref_ptr<osg::Texture> normalMap;
+		osg::Vec2 normalScale;
+		NormalMapType normalMapType;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataDisplacement : public MaterialDataBase
+	{
+	public:
+		MaterialDataDisplacement() { displacementScale = 1.0; displacementBias = 0.0; }
+		//
+		virtual ~MaterialDataDisplacement() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { displacementMap = texture; }
+	public:
+		osg::ref_ptr<osg::Texture> displacementMap;
+		float displacementScale;
+		float displacementBias;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataPhysical : public MaterialDataBase
+	{
+	public:
+		MaterialDataPhysical() { reflectivity = 0.5; clearcoatNormalScale = osg::Vec2(1.0, 1.0); transparency = 0.0; clearcoat = 0.0; clearcoatRoughness = 0.0; sheenFlag = false; }
+		//
+		virtual ~MaterialDataPhysical() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setClearcoatMap(const osg::ref_ptr<osg::Texture>& texture) { clearcoatMap = texture; }
+	public:
+		float clearcoat;
+		osg::ref_ptr<osg::Texture> clearcoatMap;
+
+		float clearcoatRoughness;
+		osg::ref_ptr<osg::Texture> clearcoatRoughnessMap;
+
+		osg::ref_ptr<osg::Texture> clearcoatNormalMap;
+		osg::Vec2 clearcoatNormalScale;
+
+		bool sheenFlag;
+		osg::Vec3 sheen;
+		float transparency;
+		float reflectivity;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataRoughness : public MaterialDataBase
+	{
+	public:
+		MaterialDataRoughness() { roughness = 1.0; }
+		//
+		virtual ~MaterialDataRoughness() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { roughnessMap = texture; }
+	public:
+		osg::ref_ptr<osg::Texture> roughnessMap;
+		float roughness;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataMetalness : public MaterialDataBase
+	{
+	public:
+		MaterialDataMetalness() { metalness = 0.0; }
+		//
+		virtual ~MaterialDataMetalness() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		//
+		void setMap(const osg::ref_ptr<osg::Texture>& texture) { metalnessMap = texture; }
+	public:
+		osg::ref_ptr<osg::Texture> metalnessMap;
+		float metalness;
+	};
+
+	class OSGTHREEJSX_EXPORT MaterialDataShininess : public MaterialDataBase
+	{
+	public:
+		MaterialDataShininess() { shininess = 30.0f; }
+		//
+		virtual ~MaterialDataShininess() {}
+	public:
+		//
+		virtual void getProgramParameters(osg::Camera* camera, osgUtil::CullVisitor* cv, ProgramParameters& parameters);
+		//
+		virtual void buildUniformAndTexture(Material* material, MaterialUniformList& uniforms, MaterialTextureList& textures);
+	public:
+		float shininess;
+	};
+}
+#endif
