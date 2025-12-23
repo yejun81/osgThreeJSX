@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 		drawable->setShape(new osg::Box(osg::Vec3(0.0, 0.0, 0.0), 5, 5, 2));
 		drawable->setUseVertexBufferObjects(true);
 
-		osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+		osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 		geode->addChild(drawable);
 
 		osg::MatrixTransform* mt = new osg::MatrixTransform();
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 
 		osg::ref_ptr<osg::Geometry> drawable = createPlane(5, 5);
 		{
-			osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+			osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 			geode->addChild(drawable);
 			osg::ref_ptr<osgThreeJSX::MaterialBasic> material = new osgThreeJSX::MaterialBasic();
 			material->setVertexColors(false);
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 		}
 
 		{
-			osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+			osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 			geode->addChild(drawable);
 			osg::ref_ptr<osgThreeJSX::MaterialBasic> material = new osgThreeJSX::MaterialBasic();
 			material->setVertexColors(false);
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 		drawable->setShape(new osg::Box(osg::Vec3(0.0, 0.0, 0.0), 200, 200, 1));
 		drawable->setUseVertexBufferObjects(true);
 
-		osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+		osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 		geode->addChild(drawable);
 
 		osg::MatrixTransform* mt = new osg::MatrixTransform();

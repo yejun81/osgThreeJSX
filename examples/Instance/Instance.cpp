@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 	osg::ref_ptr<osg::ShapeDrawable> drawable = new osg::ShapeDrawable();
 	drawable->setShape(new osg::Sphere(osg::Vec3(0, 0, 0), sphereRadius));
 
-	osgThreeJSX::NodeMaterialAdapter<osgThreeJSX::InstanceGeometry>* instanceGeometry = new osgThreeJSX::NodeMaterialAdapter<osgThreeJSX::InstanceGeometry>;
+	osgThreeJSX::MaterialBaseNode<osgThreeJSX::InstanceGeometry>* instanceGeometry = new osgThreeJSX::MaterialBaseNode<osgThreeJSX::InstanceGeometry>;
 	instanceGeometry->setGeometry(drawable);
 
 	for (float alpha = 0; alpha <= 1.0; alpha += stepSize)

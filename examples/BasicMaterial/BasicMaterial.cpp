@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 				drawable->setShape(new osg::Sphere(osg::Vec3(alpha * 400 - 200, beta * 400 - 200, gamma * 400 - 200), sphereRadius));
 				drawable->setUseVertexBufferObjects(true);
 
-				osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+				osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 				geode->addChild(drawable);
 				root->addChild(geode);
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 		osg::ref_ptr<osg::ShapeDrawable> drawable = new osg::ShapeDrawable();
 		drawable->setShape(new osg::Sphere(osg::Vec3(0, 0, 0), 4.0));
 
-		osg::ref_ptr<osgThreeJSX::NodeMaterialAdapter<osg::Geode>> geode = new osgThreeJSX::NodeMaterialAdapter<osg::Geode>();
+		osg::ref_ptr<osgThreeJSX::MaterialBaseNode<osg::Geode>> geode = new osgThreeJSX::MaterialBaseNode<osg::Geode>();
 		osg::ref_ptr<osgThreeJSX::MaterialBasic> material = new osgThreeJSX::MaterialBasic();
 		material->_common.color = osg::Vec3(1.0, 1.0, 1.0);
 		geode->setMaterial(material);
