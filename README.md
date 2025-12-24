@@ -146,3 +146,17 @@ geometry instance draw and manager
 - include the examples folder path in OSG_FILE_PATH system variables
 
 This project's examples include 3D model assets from third-party sources. These assets may be protected by their respective copyright holders. Please review carefully before use.This project provides no warranties regarding the legality, accuracy, or suitability of external assets. The project maintainers are not liable for any issues arising from the use of these resources.
+
+### 7. ScreenShots
+* Materail
+![Image](examples/assets/ScreenShots/material.png)
+* Shadow
+![Image](examples/assets/ScreenShots/shadow.png)
+* Animation
+![Image](examples/assets/ScreenShots/animation.png)
+* AreaLight
+![Image](examples/assets/ScreenShots/areaLight.png)
+* Gltf
+![Image](examples/assets/ScreenShots/gltf.png)
+* Instance
+![Image](examples/assets/ScreenShots/gpuInstances.png)
